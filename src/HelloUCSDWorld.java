@@ -11,20 +11,20 @@ import de.fhpotsdam.unfolding.utils.MapUtils;
  */
 public class HelloUCSDWorld extends PApplet {
 
-	UnfoldingMap map;
+    UnfoldingMap map;
 
-	public void setup() {
-		size(800, 600, OPENGL);
+    public void setup() {
+        size(800, 600, OPENGL);
 
-		map = new UnfoldingMap(this, new Google.GoogleTerrainProvider());
-		map.zoomAndPanTo(14, new Location(32.881, -117.238)); // UCSD
+        map = new UnfoldingMap(this, new Google.GoogleTerrainProvider());
+        map.zoomAndPanTo(14, new Location(32.881, -117.238)); // UCSD
 
-		MapUtils.createDefaultEventDispatcher(this, map);
-	}
+        MapUtils.createDefaultEventDispatcher(this, map);
+    }
 
-	public void draw() {
-		background(0);
-		map.draw();
-	}
+    public void draw() {
+        background(0);
+        map.draw();
+    }
 
 }

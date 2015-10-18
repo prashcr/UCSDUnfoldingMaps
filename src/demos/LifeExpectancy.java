@@ -12,84 +12,84 @@ import de.fhpotsdam.unfolding.data.GeoJSONReader;
 
 import java.util.HashMap;
 
-
 import de.fhpotsdam.unfolding.marker.Marker;
 
 /**
- * Visualizes life expectancy in different countries. 
+ * Visualizes life expectancy in different countries.
  * 
- * It loads the country shapes from a GeoJSON file via a data reader, and loads the population density values from
- * another CSV file (provided by the World Bank). The data value is encoded to transparency via a simplistic linear
+ * It loads the country shapes from a GeoJSON file via a data reader, and loads
+ * the population density values from another CSV file (provided by the World
+ * Bank). The data value is encoded to transparency via a simplistic linear
  * mapping.
  */
 public class LifeExpectancy extends PApplet {
 
-	UnfoldingMap map;
-	HashMap<String, Float> lifeExpMap;
-	List<Feature> countries;
-	List<Marker> countryMarkers;
+    UnfoldingMap map;
+    HashMap<String, Float> lifeExpMap;
+    List<Feature> countries;
+    List<Marker> countryMarkers;
 
-	public void setup() {
-		size(800, 600, OPENGL);
-		map = new UnfoldingMap(this, 50, 50, 700, 500, new Google.GoogleMapProvider());
-		MapUtils.createDefaultEventDispatcher(this, map);
+    public void setup() {
+        size(800, 600, OPENGL);
+        map = new UnfoldingMap(this, 50, 50, 700, 500, new Google.GoogleMapProvider());
+        MapUtils.createDefaultEventDispatcher(this, map);
 
-		// Load lifeExpectancy data
-		lifeExpMap = loadLifeExpectancyFromCSV("LifeExpectancyWorldBankModule3.csv");
-		println("Loaded " + lifeExpMap.size() + " data entries");
-		
+        // Load lifeExpectancy data
+        lifeExpMap = loadLifeExpectancyFromCSV("LifeExpectancyWorldBankModule3.csv");
+        println("Loaded " + lifeExpMap.size() + " data entries");
 
-		// Load country polygons and adds them as markers
-		countries = GeoJSONReader.loadData(this, "countries.geo.json");
-		countryMarkers = MapUtils.createSimpleMarkers(countries);
-		map.addMarkers(countryMarkers);
-		
-		// Country markers are shaded according to life expectancy (only once)
-		shadeCountries();
-	}
+        // Load country polygons and adds them as markers
+        countries = GeoJSONReader.loadData(this, "countries.geo.json");
+        countryMarkers = MapUtils.createSimpleMarkers(countries);
+        map.addMarkers(countryMarkers);
 
-	public void draw() {
-		// Draw map tiles and country markers
-		map.draw();
-	}
+        // Country markers are shaded according to life expectancy (only once)
+        shadeCountries();
+    }
 
-	//Helper method to color each country based on life expectancy
-	//Red-orange indicates low (near 40)
-	//Blue indicates high (near 100)
-	private void shadeCountries() {
-		for (Marker marker : countryMarkers) {
-			// Find data for country of the current marker
-			String countryId = marker.getId();
-			if (lifeExpMap.containsKey(countryId)) {
-				float lifeExp = lifeExpMap.get(countryId);
-				// Encode value as brightness (values range: 40-90)
-				int colorLevel = (int) map(lifeExp, 40, 90, 10, 255);
-				marker.setColor(color(255-colorLevel, 100, colorLevel));
-			}
-			else {
-				marker.setColor(color(150,150,150));
-			}
-		}
-	}
+    public void draw() {
+        // Draw map tiles and country markers
+        map.draw();
+    }
 
-	//Helper method to load life expectancy data from file
-	private HashMap<String, Float> loadLifeExpectancyFromCSV(String fileName) {
-		HashMap<String, Float> lifeExpMap = new HashMap<String, Float>();
+    // Helper method to color each country based on life expectancy
+    // Red-orange indicates low (near 40)
+    // Blue indicates high (near 100)
+    private void shadeCountries() {
+        for (Marker marker : countryMarkers) {
+            // Find data for country of the current marker
+            String countryId = marker.getId();
+            if (lifeExpMap.containsKey(countryId)) {
+                float lifeExp = lifeExpMap.get(countryId);
+                // Encode value as brightness (values range: 40-90)
+                int colorLevel = (int) map(lifeExp, 40, 90, 10, 255);
+                marker.setColor(color(255 - colorLevel, 100, colorLevel));
+            } else {
+                marker.setColor(color(150, 150, 150));
+            }
+        }
+    }
 
-		String[] rows = loadStrings(fileName);
-		for (String row : rows) {
-			// Reads country name and population density value from CSV row
-			// NOTE: Splitting on just a comma is not a great idea here, because
-			// the csv file might have commas in their entries, as this one does.  
-			// We do a smarter thing in ParseFeed, but for simplicity, 
-			// we just use a comma here, and ignore the fact that the first field is split.
-			String[] columns = row.split(",");
-			if (columns.length == 6 && !columns[5].equals("..")) {
-				lifeExpMap.put(columns[4], Float.parseFloat(columns[5]));
-			}
-		}
+    // Helper method to load life expectancy data from file
+    private HashMap<String, Float> loadLifeExpectancyFromCSV(String fileName) {
+        HashMap<String, Float> lifeExpMap = new HashMap<String, Float>();
 
-		return lifeExpMap;
-	}
+        String[] rows = loadStrings(fileName);
+        for (String row : rows) {
+            // Reads country name and population density value from CSV row
+            // NOTE: Splitting on just a comma is not a great idea here, because
+            // the csv file might have commas in their entries, as this one
+            // does.
+            // We do a smarter thing in ParseFeed, but for simplicity,
+            // we just use a comma here, and ignore the fact that the first
+            // field is split.
+            String[] columns = row.split(",");
+            if (columns.length == 6 && !columns[5].equals("..")) {
+                lifeExpMap.put(columns[4], Float.parseFloat(columns[5]));
+            }
+        }
+
+        return lifeExpMap;
+    }
 
 }
